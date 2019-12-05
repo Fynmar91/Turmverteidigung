@@ -7,29 +7,46 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Gebaeude;
 
 namespace Spiel
 {
 	class Spiellogik
 	{
-		static public Point RasterUebersetzung(Canvas spielbrett, Point punkt)
+		const int rastergroesse = 32;
+
+		Turm[,] Tuerme;
+
+		Canvas MySpielbrett { get; set; }
+
+		public Spiellogik(Canvas spielbrett)
 		{
-			const int rastergroesse = 32;
-			Point koordinate = new Point((int)(punkt.X / rastergroesse), (int)(punkt.Y / rastergroesse));
+			MySpielbrett = spielbrett;
+			Tuerme = new Turm[(int)(MySpielbrett.ActualWidth / rastergroesse), (int)(MySpielbrett.ActualHeight / rastergroesse)];
+		}
+
+		public Point RasterUebersetzung(Point punkt)
+		{
+			Point koordinate = new Point((int)((punkt.X - 10) / rastergroesse), (int)((punkt.Y - 10) / rastergroesse));
 
 			return koordinate;
 		}
 
-		static public void PlatziereFeld(Canvas spielbrett, Point punkt)
+		public void Platziere(Point punkt)
 		{
-			const int rastergroesse = 32;
-			Rectangle feld = new Rectangle();
-			feld.Fill = Brushes.Beige;
-			feld.Width = rastergroesse;
-			feld.Height = rastergroesse;
-			spielbrett.Children.Add(feld);
-			Canvas.SetLeft(feld, punkt.X * rastergroesse);
-			Canvas.SetTop(feld, punkt.Y * rastergroesse);
+			if (Tuerme[(int)punkt.X, (int)punkt.Y] == null)
+			{
+				Tuerme[(int)punkt.X, (int)punkt.Y] = new Turm(MySpielbrett, rastergroesse, punkt);
+			}
+		}
+
+		public void Zerstoere(Point punkt)
+		{
+			if (Tuerme[(int)punkt.X, (int)punkt.Y] != null)
+			{
+				(Tuerme[(int)punkt.X, (int)punkt.Y] as Turm).ZerstoereTurm();
+				Tuerme[(int)punkt.X, (int)punkt.Y] = null;
+			}
 		}
 	}
 }

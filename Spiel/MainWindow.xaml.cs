@@ -21,37 +21,72 @@ namespace Spiel
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		const int rastergroesse = 32;
+
 		DispatcherTimer takt = new DispatcherTimer();
+		Spiellogik spiellogik;
 
 		public MainWindow()
 		{
 			InitializeComponent();
 			takt.Interval = TimeSpan.FromSeconds(0.02);
 			takt.Tick += Update;
+			takt.Start();
 		}
 
 		void Update(object sender, EventArgs e)
 		{
+			if (spiellogik != null)
+			{
+				
+			}
+			else
+			{
+				spiellogik = new Spiellogik(spielbrett);
+				GitterBauen();
+			}
+		}
 
+		void GitterBauen()
+		{
+			for (int i = 0; i < (int)(spielbrett.ActualWidth / rastergroesse); i++)
+			{
+				for (int j = 0; j < (int)(spielbrett.ActualHeight / rastergroesse); j++)
+				{
+					Rectangle box = new Rectangle();
+					box.Fill = Brushes.Gray;
+					box.Width = rastergroesse - 2;
+					box.Height = rastergroesse - 2;
+					spielbrett.Children.Add(box);
+					Canvas.SetLeft(box, i * rastergroesse + 1);
+					Canvas.SetTop(box, j * rastergroesse + 1);
+				}
+			}
 		}
 
 		private void Spielbrett_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (e.ChangedButton == MouseButton.Left)
+			switch (e.ChangedButton)
 			{
-				Point koordinate = Spiellogik.RasterUebersetzung(spielbrett, Mouse.GetPosition(this));
-				rasterX.Text = koordinate.X.ToString();
-				rasterY.Text = koordinate.Y.ToString();
-				Spiellogik.PlatziereFeld(spielbrett, koordinate);
+				case MouseButton.Left:
+					spiellogik.Platziere(spiellogik.RasterUebersetzung(Mouse.GetPosition(this)));
+					break;
+				case MouseButton.Middle:
+					break;
+				case MouseButton.Right:
+					spiellogik.Zerstoere(spiellogik.RasterUebersetzung(Mouse.GetPosition(this)));
+					break;
+				case MouseButton.XButton1:
+					break;
+				case MouseButton.XButton2:
+					break;
+				default:
+					break;
 			}
 		}
 
 		private void Spielbrett_MouseUp(object sender, MouseButtonEventArgs e)
 		{
-			if (e.ChangedButton == MouseButton.Left)
-			{
-
-			}
 		}
 	}
 }
