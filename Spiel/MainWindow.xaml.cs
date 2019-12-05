@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Spiel
 {
@@ -20,19 +21,28 @@ namespace Spiel
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		DispatcherTimer takt = new DispatcherTimer();
+
 		public MainWindow()
 		{
 			InitializeComponent();
+			takt.Interval = TimeSpan.FromSeconds(0.02);
+			takt.Tick += Update;
+		}
+
+		void Update(object sender, EventArgs e)
+		{
+
 		}
 
 		private void Spielbrett_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			if (e.ChangedButton == MouseButton.Left)
 			{
-				Point zeiger = spielbrett.PointToScreen(Mouse.GetPosition(this));
-				Point koordinate = Spiellogik.Rasteruebersetzung(spielbrett, zeiger);
+				Point koordinate = Spiellogik.RasterUebersetzung(spielbrett, Mouse.GetPosition(this));
 				rasterX.Text = koordinate.X.ToString();
 				rasterY.Text = koordinate.Y.ToString();
+				Spiellogik.PlatziereFeld(spielbrett, koordinate);
 			}
 		}
 

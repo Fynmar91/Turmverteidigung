@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Spiel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="720" Width="1200">
 	<Grid>
-		<Canvas x:Name="spielbrett" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" VerticalAlignment="Top" Width="640" Background="#FF2B2B2B" MouseDown="Spielbrett_MouseDown" MouseUp="Spielbrett_MouseUp"/>
-		<Grid HorizontalAlignment="Left" Height="65" Margin="667,50,0,0" VerticalAlignment="Top" Width="88">
+		<Canvas x:Name="spielbrett" HorizontalAlignment="Left" Height="640" Width="960" Margin="10,10,0,0" VerticalAlignment="Top" Background="#FF2B2B2B" MouseDown="Spielbrett_MouseDown" MouseUp="Spielbrett_MouseUp"/>
+		<Grid HorizontalAlignment="Left" Height="65" Margin="1069,38,0,0" VerticalAlignment="Top" Width="88">
 			<TextBlock x:Name="rasterX" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
 			<TextBlock x:Name="rasterY" HorizontalAlignment="Left" Margin="10,31,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
 		</Grid>
