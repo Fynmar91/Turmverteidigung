@@ -8,37 +8,59 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace Gebaeude
+namespace SpielObjekte
 {
 	public class Turm
 	{
-		Rectangle MyForm { get; set; }
+		protected Polygon MyBauform { get; set; }
 		static Canvas MySpielbrett { get; set; }
 		Point MyBauplatz { get; set; }
 
 
 		public Turm(Canvas spielbrett, int rastergroesse, Point bauplatz)
 		{
-			MyForm = new Rectangle();
 			MySpielbrett = spielbrett;
 			MyBauplatz = bauplatz;
-
-			BaueTurm(rastergroesse);
 		}
 
-		void BaueTurm(int rastergroesse)
+		public void BaueTurm()
 		{
-			MyForm.Fill = Brushes.Beige;
-			MyForm.Width = rastergroesse - 2;
-			MyForm.Height = rastergroesse - 2;
-			MySpielbrett.Children.Add(MyForm);
-			Canvas.SetLeft(MyForm, MyBauplatz.X * rastergroesse + 1);
-			Canvas.SetTop(MyForm, MyBauplatz.Y * rastergroesse + 1);
+			MySpielbrett.Children.Add(MyBauform);
 		}
 
 		public void ZerstoereTurm()
 		{
-			MySpielbrett.Children.Remove(MyForm);
+			MySpielbrett.Children.Remove(MyBauform);
+		}
+	}
+
+	public class MGTurm : Turm
+	{
+		public MGTurm(Canvas spielbrett, int rastergroesse, Point bauplatz) : base(spielbrett, rastergroesse, bauplatz)
+		{
+			MyBauform = new Polygon();
+			MyBauform.Fill = Brushes.Beige;
+			MyBauform.Points.Add(new Point(2, 2));
+			MyBauform.Points.Add(new Point(rastergroesse - 2, 2));
+			MyBauform.Points.Add(new Point(rastergroesse - 2, rastergroesse - 2));
+			MyBauform.Points.Add(new Point(2, rastergroesse - 2));
+			Canvas.SetLeft(MyBauform, bauplatz.X * rastergroesse);
+			Canvas.SetTop(MyBauform, bauplatz.Y * rastergroesse);
+		}
+	}
+
+	public class SniperTurm : Turm
+	{
+		public SniperTurm(Canvas spielbrett, int rastergroesse, Point bauplatz) : base(spielbrett, rastergroesse, bauplatz)
+		{
+			MyBauform = new Polygon();
+			MyBauform.Fill = Brushes.DarkRed;
+			MyBauform.Points.Add(new Point(2, 2));
+			MyBauform.Points.Add(new Point(rastergroesse - 2, 2));
+			MyBauform.Points.Add(new Point(rastergroesse - 2, rastergroesse - 2));
+			MyBauform.Points.Add(new Point(2, rastergroesse - 2));
+			Canvas.SetLeft(MyBauform, bauplatz.X * rastergroesse);
+			Canvas.SetTop(MyBauform, bauplatz.Y * rastergroesse);
 		}
 	}
 }

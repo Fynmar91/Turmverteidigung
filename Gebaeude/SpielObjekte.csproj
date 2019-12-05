@@ -7,7 +7,7 @@
     <ProjectGuid>{37B85E7B-4999-4223-9C58-19A4B37DEFFF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gebaeude</RootNamespace>
+    <RootNamespace>SpielObjekte</RootNamespace>
     <AssemblyName>Gebaeude</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Gebaeude.cs" />
+    <Compile Include="Gegner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

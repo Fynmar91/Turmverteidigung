@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.902
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spiel", "Spiel\Spiel.csproj", "{9C973E1A-EA77-4821-9FE6-FC114655F757}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gebaeude", "Gebaeude\Gebaeude.csproj", "{37B85E7B-4999-4223-9C58-19A4B37DEFFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpielObjekte", "Gebaeude\SpielObjekte.csproj", "{37B85E7B-4999-4223-9C58-19A4B37DEFFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

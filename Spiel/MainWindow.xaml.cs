@@ -21,10 +21,12 @@ namespace Spiel
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		const int rastergroesse = 32;
+		const int rasterGroesse = 32;
 
 		DispatcherTimer takt = new DispatcherTimer();
-		Spiellogik spiellogik;
+
+		Spiellogik spielLogik;
+		int turmAuswahl = 0;
 
 		public MainWindow()
 		{
@@ -36,30 +38,36 @@ namespace Spiel
 
 		void Update(object sender, EventArgs e)
 		{
-			if (spiellogik != null)
+			if (spielLogik != null)
 			{
-				
+
 			}
 			else
 			{
-				spiellogik = new Spiellogik(spielbrett);
+				TextBlock[] Anzeigen = new TextBlock[1];
+
+				Anzeigen[0] = geld_anzeige;
+
+				spielLogik = new Spiellogik(spielbrett, Anzeigen);
 				GitterBauen();
+
+				turmAuswahl = 0;
 			}
 		}
 
 		void GitterBauen()
 		{
-			for (int i = 0; i < (int)(spielbrett.ActualWidth / rastergroesse); i++)
+			for (int i = 0; i < (int)(spielbrett.ActualWidth / rasterGroesse); i++)
 			{
-				for (int j = 0; j < (int)(spielbrett.ActualHeight / rastergroesse); j++)
+				for (int j = 0; j < (int)(spielbrett.ActualHeight / rasterGroesse); j++)
 				{
 					Rectangle box = new Rectangle();
 					box.Fill = Brushes.Gray;
-					box.Width = rastergroesse - 2;
-					box.Height = rastergroesse - 2;
+					box.Width = rasterGroesse - 2;
+					box.Height = rasterGroesse - 2;
 					spielbrett.Children.Add(box);
-					Canvas.SetLeft(box, i * rastergroesse + 1);
-					Canvas.SetTop(box, j * rastergroesse + 1);
+					Canvas.SetLeft(box, i * rasterGroesse + 1);
+					Canvas.SetTop(box, j * rasterGroesse + 1);
 				}
 			}
 		}
@@ -69,12 +77,13 @@ namespace Spiel
 			switch (e.ChangedButton)
 			{
 				case MouseButton.Left:
-					spiellogik.Platziere(spiellogik.RasterUebersetzung(Mouse.GetPosition(this)));
+					spielLogik.PlatziereTurm(spielLogik.RasterUebersetzung(Mouse.GetPosition(this)), turmAuswahl);
 					break;
 				case MouseButton.Middle:
+					spielLogik.PlatziereGegner(Mouse.GetPosition(this));
 					break;
 				case MouseButton.Right:
-					spiellogik.Zerstoere(spiellogik.RasterUebersetzung(Mouse.GetPosition(this)));
+					spielLogik.Zerstoere(spielLogik.RasterUebersetzung(Mouse.GetPosition(this)));
 					break;
 				case MouseButton.XButton1:
 					break;
@@ -85,8 +94,37 @@ namespace Spiel
 			}
 		}
 
-		private void Spielbrett_MouseUp(object sender, MouseButtonEventArgs e)
+		private void TurmMG_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 1; }
+
+		private void TurmSniper_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 2; }
+
+		private void Window_KeyDown(object sender, KeyEventArgs e)
 		{
+			switch (e.Key)
+			{
+				case Key.D1:
+					turmAuswahl = 1;
+					break;
+				case Key.D2:
+					turmAuswahl = 2;
+					break;
+				case Key.D3:
+					break;
+				case Key.D4:
+					break;
+				case Key.D5:
+					break;
+				case Key.D6:
+					break;
+				case Key.D7:
+					break;
+				case Key.D8:
+					break;
+				case Key.D9:
+					break;
+				default:
+					break;
+			}
 		}
 	}
 }
