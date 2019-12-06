@@ -12,9 +12,9 @@ namespace SpielObjekte
 {
 	public class Gegner
 	{
-		public double MyX { get; set; }
-		public double MyY { get; set; }
-		static Canvas MySpielbrett { get; set; }
+		double MyX { get; set; }
+		double MyY { get; set; }
+		Canvas MySpielbrett { get; set; }
 		protected Polygon MyForm { get; set; }
 
 		public Gegner(Canvas spielbrett, Point punkt)

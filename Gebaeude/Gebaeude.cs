@@ -13,30 +13,41 @@ namespace SpielObjekte
 	public class Turm
 	{
 		protected Polygon MyBauform { get; set; }
-		static Canvas MySpielbrett { get; set; }
+		protected Ellipse MyZielbereich { get; set; }
+		Canvas MySpielbrett { get; set; }
 		Point MyBauplatz { get; set; }
 
 
-		public Turm(Canvas spielbrett, int rastergroesse, Point bauplatz)
+		public Turm(Canvas spielbrett, int rastergroesse, Point bauplatz, int reichweite)
 		{
 			MySpielbrett = spielbrett;
 			MyBauplatz = bauplatz;
+
+			MyZielbereich = new Ellipse();
+			MyZielbereich.Fill = new SolidColorBrush(Color.FromArgb(40, 0, 255, 255));
+			MyZielbereich.Height = reichweite;
+			MyZielbereich.Width = reichweite;
+			Canvas.SetLeft(MyZielbereich, bauplatz.X * rastergroesse - reichweite / 2 + rastergroesse / 2);
+			Canvas.SetTop(MyZielbereich, bauplatz.Y * rastergroesse - reichweite / 2 + rastergroesse / 2);
 		}
 
 		public void BaueTurm()
 		{
 			MySpielbrett.Children.Add(MyBauform);
+			MySpielbrett.Children.Add(MyZielbereich);
 		}
 
 		public void ZerstoereTurm()
 		{
 			MySpielbrett.Children.Remove(MyBauform);
+			MySpielbrett.Children.Remove(MyZielbereich);
 		}
 	}
 
 	public class MGTurm : Turm
 	{
-		public MGTurm(Canvas spielbrett, int rastergroesse, Point bauplatz) : base(spielbrett, rastergroesse, bauplatz)
+		public MGTurm(Canvas spielbrett, int rastergroesse, Point bauplatz, int reichweite)
+						: base(spielbrett, rastergroesse, bauplatz, reichweite)
 		{
 			MyBauform = new Polygon();
 			MyBauform.Fill = Brushes.Beige;
@@ -51,7 +62,8 @@ namespace SpielObjekte
 
 	public class SniperTurm : Turm
 	{
-		public SniperTurm(Canvas spielbrett, int rastergroesse, Point bauplatz) : base(spielbrett, rastergroesse, bauplatz)
+		public SniperTurm(Canvas spielbrett, int rastergroesse, Point bauplatz, int reichweite)
+							: base(spielbrett, rastergroesse, bauplatz, reichweite)
 		{
 			MyBauform = new Polygon();
 			MyBauform.Fill = Brushes.DarkRed;

@@ -16,17 +16,20 @@ using System.Windows.Threading;
 
 namespace Spiel
 {
-	/// <summary>
-	/// Interaktionslogik für MainWindow.xaml
-	/// </summary>
 	public partial class MainWindow : Window
 	{
 		const int rasterGroesse = 32;
 
 		DispatcherTimer takt = new DispatcherTimer();
+		Point zeiger = new Point(-1, -1);
+		Point zeigerAlt = new Point(-1, -1);
+		bool turmGewechselt = false;
+		bool turmAbbruch = false;
+		bool turmBauen = false;
 
 		Spiellogik spielLogik;
 		int turmAuswahl = 0;
+		bool turmVorschau = false;
 
 		public MainWindow()
 		{
@@ -40,7 +43,32 @@ namespace Spiel
 		{
 			if (spielLogik != null)
 			{
+				if (turmVorschau && !turmAbbruch && !turmBauen)
+				{
+					zeiger = spielLogik.RasterUebersetzung(Mouse.GetPosition(this));
 
+					if (zeiger != zeigerAlt || turmGewechselt)
+					{
+						spielLogik.Zerstoere(zeigerAlt);
+						spielLogik.TurmPlatzieren(zeiger, turmAuswahl);
+						zeigerAlt = zeiger;
+						turmGewechselt = false;
+					}
+				}
+				else if (turmVorschau && turmAbbruch)
+				{
+					spielLogik.Zerstoere(zeigerAlt);
+					turmVorschau = false;
+					turmAbbruch = false;
+					zeigerAlt = new Point(-1, -1);
+				}
+				else if (turmVorschau && turmBauen)
+				{
+					spielLogik.Baue(turmAuswahl);
+					turmVorschau = false;
+					turmBauen = false;
+					zeigerAlt = new Point(-1, -1);
+				}
 			}
 			else
 			{
@@ -51,7 +79,15 @@ namespace Spiel
 				spielLogik = new Spiellogik(spielbrett, Anzeigen);
 				GitterBauen();
 
+				takt = new DispatcherTimer();
+				zeiger = new Point(0, 0);
+				zeigerAlt = new Point(0, 0);
+				turmGewechselt = false;
+				turmAbbruch = false;
+				turmBauen = false;
+
 				turmAuswahl = 0;
+				turmVorschau = false;
 			}
 		}
 
@@ -77,7 +113,7 @@ namespace Spiel
 			switch (e.ChangedButton)
 			{
 				case MouseButton.Left:
-					spielLogik.PlatziereTurm(spielLogik.RasterUebersetzung(Mouse.GetPosition(this)), turmAuswahl);
+					turmBauen = true;
 					break;
 				case MouseButton.Middle:
 					spielLogik.PlatziereGegner(Mouse.GetPosition(this));
@@ -94,9 +130,9 @@ namespace Spiel
 			}
 		}
 
-		private void TurmMG_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 1; }
+		private void TurmMG_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 1; turmVorschau = true; turmGewechselt = true; }
 
-		private void TurmSniper_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 2; }
+		private void TurmSniper_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 2; turmVorschau = true; turmGewechselt = true; }
 
 		private void Window_KeyDown(object sender, KeyEventArgs e)
 		{
@@ -104,9 +140,13 @@ namespace Spiel
 			{
 				case Key.D1:
 					turmAuswahl = 1;
+					turmVorschau = true;
+					turmGewechselt = true;
 					break;
 				case Key.D2:
 					turmAuswahl = 2;
+					turmVorschau = true;
+					turmGewechselt = true;
 					break;
 				case Key.D3:
 					break;
@@ -121,6 +161,9 @@ namespace Spiel
 				case Key.D8:
 					break;
 				case Key.D9:
+					break;
+				case Key.Escape:
+					turmAbbruch = true;
 					break;
 				default:
 					break;

@@ -14,21 +14,25 @@ namespace Spiel
 	class Spiellogik
 	{
 		const int rasterGroesse = 32;
+		const int turmPreisMG = 100;
+		const int turmPreisSniper = 200;
 
-		TextBlock[] Anzeigen;
+
+		int MyGeld { get; set; }
 
 		Canvas MySpielbrett { get; set; }
 		Turm[,] MyTuerme { get; set; }
 		List<Gegner> MyGegner { get; set; }
-		int MyGeld { get; set; }
+		TextBlock[] MyAnzeigen { get; set; }
 
 		public Spiellogik(Canvas spielbrett, TextBlock[] Anzeigen)
 		{
+			MyGeld = 5000;
+
 			MySpielbrett = spielbrett;
 			MyTuerme = new Turm[(int)(MySpielbrett.ActualWidth / rasterGroesse), (int)(MySpielbrett.ActualHeight / rasterGroesse)];
 			MyGegner = new List<Gegner>();
-			MyGeld = 500;
-			this.Anzeigen = Anzeigen;
+			this.MyAnzeigen = Anzeigen;
 		}
 
 		public Point RasterUebersetzung(Point punkt)
@@ -36,48 +40,71 @@ namespace Spiel
 			return new Point((int)((punkt.X - 10) / rasterGroesse), (int)((punkt.Y - 10) / rasterGroesse));
 		}
 
-		public void PlatziereTurm(Point punkt, int turmTyp)
+		public void TurmPlatzieren(Point punkt, int turmTyp)
 		{
-			if (MyTuerme[(int)punkt.X, (int)punkt.Y] == null)
+			if (punkt.X >= 0 && punkt.X < MySpielbrett.ActualWidth / rasterGroesse && 
+				punkt.Y >= 0 && punkt.Y < MySpielbrett.ActualHeight / rasterGroesse)
 			{
-				switch (turmTyp)
+				if (MyTuerme[(int)punkt.X, (int)punkt.Y] == null)
 				{
-					case 1:
-						if (MyGeld >= 100)
-						{
-							MyTuerme[(int)punkt.X, (int)punkt.Y] = new MGTurm(MySpielbrett, rasterGroesse, punkt);
-							MyTuerme[(int)punkt.X, (int)punkt.Y].BaueTurm();
-							MyGeld -= 100;
-							AnzeigenErneuern();
-						}
-						break;
-					case 2:
-						if (MyGeld >= 200)
-						{
-							MyTuerme[(int)punkt.X, (int)punkt.Y] = new SniperTurm(MySpielbrett, rasterGroesse, punkt);
-							MyTuerme[(int)punkt.X, (int)punkt.Y].BaueTurm();
-							MyGeld -= 200;
-							AnzeigenErneuern();
-						}
-						break;
-					default:
-						break;
+					switch (turmTyp)
+					{
+						case 1:
+							if (MyGeld >= turmPreisMG)
+							{
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = 
+									new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 3 );
+								MyTuerme[(int)punkt.X, (int)punkt.Y].BaueTurm();
+								AnzeigenErneuern();
+							}
+							break;
+						case 2:
+							if (MyGeld >= turmPreisSniper)
+							{
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = 
+									new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 4 );
+								MyTuerme[(int)punkt.X, (int)punkt.Y].BaueTurm();
+								AnzeigenErneuern();
+							}
+							break;
+						default:
+							break;
+					}
 				}
+			}
+		}
+
+		public void Baue(int turmTyp)
+		{
+			switch (turmTyp)
+			{
+				case 1:
+					MyGeld -= turmPreisMG;
+					break;
+				case 2:
+					MyGeld -= turmPreisSniper;
+					break;
+				default:
+					break;
 			}
 		}
 
 		public void Zerstoere(Point punkt)
 		{
-			if (MyTuerme[(int)punkt.X, (int)punkt.Y] != null)
+			if (punkt.X >= 0 && punkt.X < MySpielbrett.ActualWidth / rasterGroesse &&
+				punkt.Y >= 0 && punkt.Y < MySpielbrett.ActualHeight / rasterGroesse)
 			{
-				(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).ZerstoereTurm();
-				MyTuerme[(int)punkt.X, (int)punkt.Y] = null;
+				if (MyTuerme[(int)punkt.X, (int)punkt.Y] != null)
+				{
+					(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).ZerstoereTurm();
+					MyTuerme[(int)punkt.X, (int)punkt.Y] = null;
+				}
 			}
 		}
 
 		void AnzeigenErneuern()
 		{
-			Anzeigen[0].Text = MyGeld.ToString();
+			MyAnzeigen[0].Text = MyGeld.ToString();
 		}
 
 		public void PlatziereGegner(Point punkt)
