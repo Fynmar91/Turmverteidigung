@@ -19,7 +19,6 @@ namespace Spiel
 	public partial class MainWindow : Window
 	{
 		const int rasterGroesse = 32;
-		const double invervall = 0.02;
 
 		DispatcherTimer takt = new DispatcherTimer();
 		Point zeiger = new Point(-1, -1);
@@ -35,7 +34,7 @@ namespace Spiel
 		public MainWindow()
 		{
 			InitializeComponent();
-			takt.Interval = TimeSpan.FromSeconds(invervall);
+			takt.Interval = TimeSpan.FromSeconds(0.02);
 			takt.Tick += Update;
 			takt.Start();
 		}
@@ -49,11 +48,11 @@ namespace Spiel
 					BauMenu();
 				}
 
-				spielLogik.TuermeSchiessen();
-				spielLogik.Animieren();
+				spielLogik.TuermeSchiessen(takt.Interval);
+				spielLogik.Animieren(takt.Interval);
 				spielLogik.Kollisionen();
 				spielLogik.Aufraeumen();
-				spielLogik.Generieren();
+				spielLogik.Generieren(takt.Interval);
 			}
 			else
 			{
@@ -62,9 +61,8 @@ namespace Spiel
 				Anzeigen[0] = geld_anzeige;
 
 				spielLogik = new Spiellogik(spielbrett, Anzeigen);
-				GitterBauen();
+				KarteBauen();
 
-				takt = new DispatcherTimer();
 				zeiger = new Point(0, 0);
 				zeigerAlt = new Point(0, 0);
 				turmGewechselt = false;
@@ -105,21 +103,79 @@ namespace Spiel
 			}
 		}
 
-		void GitterBauen()
+		void KarteBauen()
 		{
 			for (int i = 0; i < (int)(spielbrett.ActualWidth / rasterGroesse); i++)
 			{
 				for (int j = 0; j < (int)(spielbrett.ActualHeight / rasterGroesse); j++)
 				{
 					Rectangle box = new Rectangle();
-					box.Fill = Brushes.Gray;
-					box.Width = rasterGroesse - 2;
-					box.Height = rasterGroesse - 2;
+					box.Width = rasterGroesse;
+					box.Height = rasterGroesse;
 					spielbrett.Children.Add(box);
-					Canvas.SetLeft(box, i * rasterGroesse + 1);
-					Canvas.SetTop(box, j * rasterGroesse + 1);
+					Canvas.SetLeft(box, i * rasterGroesse);
+					Canvas.SetTop(box, j * rasterGroesse);
+					box.Fill = Brushes.GreenYellow;
+
+					if (i == 0 || i == (int)(spielbrett.ActualWidth / rasterGroesse) - 1 || j == 0 || j == (int)(spielbrett.ActualHeight / rasterGroesse) - 1)
+					{
+						box.Fill = Brushes.DimGray;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (i == 5 && j > 2 && j < 10)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (j == 10 && i > 4 && i < 9)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (i == 8 && j > 5 && j < 10)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (j == 5 && i > 7 && i < 15)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (i == 15 && j > 4 && j < 8)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (j == 8 && i > 10 && i < 16)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (i == 10 && j > 7 && j < 12)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
+					else if (j == 11 && i > 10 && i < 24)
+					{
+						box.Fill = Brushes.SandyBrown;
+						spielLogik.TurmBauen(new Point(i, j), turmAuswahl);
+					}
 				}
 			}
+
+			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 1, 5, 60, 50);
+			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2 + 3, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 0.5, 2, 20, 100);
+			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2 - 3, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 0.5, 2, 20, 100);
+			spielLogik.PlatzierePunkt(new Point(5 * rasterGroesse + rasterGroesse / 2, 10 * rasterGroesse + rasterGroesse), new Point(1, 0));
+			spielLogik.PlatzierePunkt(new Point(8 * rasterGroesse + rasterGroesse, 10 * rasterGroesse + rasterGroesse / 2), new Point(0, -1));
+			spielLogik.PlatzierePunkt(new Point(8 * rasterGroesse + rasterGroesse / 2, 4 * rasterGroesse + rasterGroesse), new Point(1, 0));
+			spielLogik.PlatzierePunkt(new Point(15 * rasterGroesse + rasterGroesse, 5 * rasterGroesse + rasterGroesse / 2), new Point(0, 1));
+			spielLogik.PlatzierePunkt(new Point(15 * rasterGroesse + rasterGroesse / 2, 8 * rasterGroesse + rasterGroesse), new Point(-1, 0));
+			spielLogik.PlatzierePunkt(new Point(9 * rasterGroesse + rasterGroesse, 8 * rasterGroesse + rasterGroesse / 2), new Point(0, 1));
+			spielLogik.PlatzierePunkt(new Point(10 * rasterGroesse + rasterGroesse / 2, 11 * rasterGroesse + rasterGroesse), new Point(1, 0));
+			spielLogik.PlatzierePunkt(new Point(23 * rasterGroesse + rasterGroesse, 11 * rasterGroesse + rasterGroesse / 2), new Point(0, 0));
 		}
 
 		private void Spielbrett_MouseDown(object sender, MouseButtonEventArgs e)
@@ -133,7 +189,6 @@ namespace Spiel
 					}
 					break;
 				case MouseButton.Middle:
-					spielLogik.PlatziereGenerator(Mouse.GetPosition(this));
 					break;
 				case MouseButton.Right:
 					spielLogik.Zerstoere(spielLogik.RasterUebersetzung(Mouse.GetPosition(this)));

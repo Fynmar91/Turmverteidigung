@@ -18,13 +18,15 @@ namespace SpielObjekte
 		public Ellipse MyKollisionsbox { get; set; }
 		public Gegner MyZiel { get; set; }
 		double MySchaden { get; set; }
+		int MyGeschwindigkeit { get; set; }
 
-		public Projektil(Canvas spielbrett, Point punkt, Gegner gegner, double schaden)
+		public Projektil(Canvas spielbrett, Point punkt, Gegner gegner, double schaden, int geschwindigkeit)
 		{
 			MyPosition = punkt;
 			MySpielbrett = spielbrett;
 			MyZiel = gegner;
 			MySchaden = schaden;
+			MyGeschwindigkeit = geschwindigkeit;
 
 			MyForm = new Polygon();
 			MyForm.Fill = Brushes.Black;
@@ -50,8 +52,8 @@ namespace SpielObjekte
 		{
 			RotateTransform rotateTransform = new RotateTransform(90 + Math.Atan2(MyPosition.X - MyZiel.MyPosition.X, MyPosition.Y - MyZiel.MyPosition.Y) / Math.PI * 180);
 
-			double velX = Math.Cos((rotateTransform.Angle) * Math.PI / 180) * 200;
-			double velY = Math.Sin((rotateTransform.Angle) * Math.PI / 180) * -200;
+			double velX = Math.Cos((rotateTransform.Angle) * Math.PI / 180) * MyGeschwindigkeit;
+			double velY = Math.Sin((rotateTransform.Angle) * Math.PI / 180) * -MyGeschwindigkeit;
 
 			Point neuPosition = new Point(MyPosition.X + velX * intervall, MyPosition.Y + velY * intervall);
 			MyPosition = neuPosition;

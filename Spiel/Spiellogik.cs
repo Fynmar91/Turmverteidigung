@@ -16,28 +16,28 @@ namespace Spiel
 		const int rasterGroesse = 32;
 		const int turmPreisMG = 100;
 		const int turmPreisSniper = 200;
-		const double intervall = 0.02;
-
 
 		int MyGeld { get; set; }
 
 		Canvas MySpielbrett { get; set; }
-		Turm[,] MyTuerme { get; set; }
-		Turm TempTurm { get; set; }
+		Gebaeude[,] MyTuerme { get; set; }
+		Gebaeude TempTurm { get; set; }
 		TextBlock[] MyAnzeigen { get; set; }
 		List<Gegner> MyGegner { get; set; }
 		List<Projektil> MyProjektile { get; set; }
 		List<GegnerGenerator> MyGegnerGeneratoren { get; set; }
+		List<GegnerPunkt> MyGegnerPunkte { get; set; }
 
 		public Spiellogik(Canvas spielbrett, TextBlock[] Anzeigen)
 		{
 			MyGeld = 5000;
 
 			MySpielbrett = spielbrett;
-			MyTuerme = new Turm[(int)(MySpielbrett.ActualWidth / rasterGroesse), (int)(MySpielbrett.ActualHeight / rasterGroesse)];
+			MyTuerme = new Gebaeude[(int)(MySpielbrett.ActualWidth / rasterGroesse), (int)(MySpielbrett.ActualHeight / rasterGroesse)];
 			MyGegner = new List<Gegner>();
 			MyProjektile = new List<Projektil>();
 			MyGegnerGeneratoren = new List<GegnerGenerator>();
+			MyGegnerPunkte = new List<GegnerPunkt>();
 			this.MyAnzeigen = Anzeigen;
 		}
 
@@ -55,7 +55,7 @@ namespace Spiel
 				{
 					if (TempTurm != null)
 					{
-						TempTurm.ZerstoereTurm();
+						(TempTurm as Turm).ZerstoereTurm();
 					}
 
 					switch (turmTyp)
@@ -64,14 +64,14 @@ namespace Spiel
 							if (MyGeld >= turmPreisMG)
 							{
 								TempTurm = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 4);
-								TempTurm.ZeigeTurm();
+								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
 						case 2:
 							if (MyGeld >= turmPreisSniper)
 							{
 								TempTurm = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 6);
-								TempTurm.ZeigeTurm();
+								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
 						default:
@@ -81,7 +81,7 @@ namespace Spiel
 			}
 			else if (TempTurm != null)
 			{
-				TempTurm.ZerstoereTurm();
+				(TempTurm as Turm).ZerstoereTurm();
 			}
 
 		}
@@ -95,16 +95,19 @@ namespace Spiel
 				{
 					if (TempTurm != null)
 					{
-						TempTurm.ZerstoereTurm();
+						(TempTurm as Turm).ZerstoereTurm();
 					}
 
 					switch (turmTyp)
 					{
+						case 0:
+							MyTuerme[(int)punkt.X, (int)punkt.Y] = new Strasse(MySpielbrett, rasterGroesse, punkt);
+							break;
 						case 1:
 							if (MyGeld >= turmPreisMG)
 							{
 								MyTuerme[(int)punkt.X, (int)punkt.Y] = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 4);
-								MyTuerme[(int)punkt.X, (int)punkt.Y].BaueTurm();
+								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisMG;
 								AnzeigenErneuern();
 							}
@@ -113,7 +116,7 @@ namespace Spiel
 							if (MyGeld >= turmPreisSniper)
 							{
 								MyTuerme[(int)punkt.X, (int)punkt.Y] = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 6);
-								MyTuerme[(int)punkt.X, (int)punkt.Y].BaueTurm();
+								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisSniper;
 								AnzeigenErneuern();
 							}
@@ -143,24 +146,29 @@ namespace Spiel
 			MyAnzeigen[0].Text = MyGeld.ToString();
 		}
 
-		public void PlatziereGenerator(Point punkt)
+		public void PlatziereGenerator(Point punkt, Point richtung, double generationsRate, int groesse, int leben, int geschwindigkeit)
 		{
-			MyGegnerGeneratoren.Add(new GegnerGenerator(MySpielbrett, punkt, MyGegner));
+			MyGegnerGeneratoren.Add(new GegnerGenerator(MySpielbrett, punkt, MyGegner, richtung, generationsRate, groesse, leben, geschwindigkeit));
 		}
 
-		public void TuermeSchiessen()
+		public void PlatzierePunkt(Point punkt, Point richtung)
+		{
+			MyGegnerPunkte.Add(new GegnerPunkt(MySpielbrett, punkt, richtung));
+		}
+
+		public void TuermeSchiessen(TimeSpan intervall)
 		{
 			foreach (var turm in MyTuerme)
 			{
-				if (turm != null)
+				if (turm != null && turm is Turm)
 				{
-					turm.Nachladen(intervall);
+					(turm as Turm).Nachladen(intervall.TotalSeconds);
 
 					foreach (var gegner in MyGegner)
 					{
-						if (turm.ZielErfassen(gegner))
+						if ((turm as Turm).ZielErfassen(gegner))
 						{
-							Projektil projektil = turm.Schiessen(gegner);
+							Projektil projektil = (turm as Turm).Schiessen(gegner);
 
 							if (projektil != null)
 							{
@@ -174,16 +182,16 @@ namespace Spiel
 			}
 		}
 
-		public void Animieren()
+		public void Animieren(TimeSpan intervall)
 		{
 			foreach (var item in MyGegner)
 			{
-				item.Bewegen(intervall);
+				item.Bewegen(intervall.TotalSeconds);
 			}
 
 			foreach (var item in MyProjektile)
 			{
-				item.Bewegen(intervall);
+				item.Bewegen(intervall.TotalSeconds);
 			}
 		}
 
@@ -208,12 +216,30 @@ namespace Spiel
 				MySpielbrett.Children.Remove(item.MyForm);
 				MySpielbrett.Children.Remove(item.MyKollisionsbox);
 			}
+
+			List<Gegner> GegnerAbfall = new List<Gegner>();
+
+			foreach (var punkt in MyGegnerPunkte)
+			{
+				foreach (var gegner in MyGegner)
+				{
+					if (punkt.Umleiten(gegner) && punkt == MyGegnerPunkte.Last())
+					{
+						GegnerAbfall.Add(gegner);
+					}
+				}
+			}
+
+			foreach (var item in GegnerAbfall)
+			{
+				MyGegner.Remove(item);
+				MySpielbrett.Children.Remove(item.MyForm);
+			}
 		}
 
 		public void Aufraeumen()
 		{
 			List<Gegner> GegnerAbfall = new List<Gegner>();
-			List<Projektil> ProjektilAbfall = new List<Projektil>();
 
 			foreach (var item in MyGegner)
 			{
@@ -224,18 +250,20 @@ namespace Spiel
 				}
 			}
 
+			foreach (var item in GegnerAbfall)
+			{
+				MyGegner.Remove(item);
+				MySpielbrett.Children.Remove(item.MyForm);
+			}
+
+			List<Projektil> ProjektilAbfall = new List<Projektil>();
+
 			foreach (var item in MyProjektile)
 			{
 				if (!item.MyZiel.IstAmLeben())
 				{
 					ProjektilAbfall.Add(item);
 				}
-			}
-
-			foreach (var item in GegnerAbfall)
-			{
-				MyGegner.Remove(item);
-				MySpielbrett.Children.Remove(item.MyForm);
 			}
 
 			foreach (var item in ProjektilAbfall)
@@ -246,11 +274,11 @@ namespace Spiel
 			}
 		}
 
-		public void Generieren()
+		public void Generieren(TimeSpan intervall)
 		{
 			foreach (var item in MyGegnerGeneratoren)
 			{
-				item.Generiere(intervall);
+				item.Generiere(intervall.TotalSeconds);
 			}
 		}
 	}
@@ -262,13 +290,21 @@ namespace Spiel
 		List<Gegner> MyGegner { get; set; }
 		double MyGenerationsAbklingzeit { get; set; }
 		double MyGenerationsRate { get; set; }
+		Point MyRichtung { get; set; }
+		int MyGroesse { get; set; }
+		int MyLeben { get; set; }
+		int MyGeschwindigkeit { get; set; }
 
-		public GegnerGenerator(Canvas spielbrett, Point punkt, List<Gegner> gegner)
+		public GegnerGenerator(Canvas spielbrett, Point punkt, List<Gegner> gegner, Point richtung, double generationsRate, int groesse, int leben, int geschwindigkeit)
 		{
 			MySpielbrett = spielbrett;
 			MyPosition = punkt;
 			MyGegner = gegner;
-			MyGenerationsRate = 2;
+			MyGenerationsRate = generationsRate;
+			MyRichtung = richtung;
+			MyGroesse = groesse;
+			MyLeben = leben;
+			MyGeschwindigkeit = geschwindigkeit;
 		}
 
 		public void Generiere(double intervall)
@@ -279,8 +315,42 @@ namespace Spiel
 			{
 				MyGenerationsAbklingzeit = MyGenerationsRate;
 
-				MyGegner.Add(new Gegner(MySpielbrett, MyPosition));
+				MyGegner.Add(new Gegner(MySpielbrett, MyPosition, MyGroesse, MyRichtung, MyLeben, MyGeschwindigkeit));
 			}
+		}
+	}
+
+	public class GegnerPunkt
+	{
+		Point MyPosition { get; set; }
+		Ellipse MyZielbereich { get; set; }
+		Point MyRichtung { get; set; }
+
+		public GegnerPunkt(Canvas spielbrett, Point bauplatz, Point richtung)
+		{
+			MyPosition = bauplatz;
+			MyRichtung = richtung;
+
+			MyZielbereich = new Ellipse();
+			//MyZielbereich.Fill = new SolidColorBrush(Color.FromArgb(60, 0, 255, 255));
+			MyZielbereich.Height = 32;
+			MyZielbereich.Width = 32;
+			Canvas.SetLeft(MyZielbereich, bauplatz.X - 32 / 2);
+			Canvas.SetTop(MyZielbereich, bauplatz.Y - 32 / 2);
+
+			spielbrett.Children.Add(MyZielbereich);
+		}
+
+		public bool Umleiten(Gegner gegner)
+		{
+			if (MyZielbereich.RenderedGeometry.FillContains(new Point(gegner.MyPosition.X - (MyPosition.X - MyZielbereich.ActualWidth / 2),
+																		gegner.MyPosition.Y - (MyPosition.Y - MyZielbereich.ActualHeight / 2))))
+			{
+				gegner.MyRichtung = MyRichtung;
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
