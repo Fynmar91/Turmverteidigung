@@ -12,29 +12,46 @@ namespace SpielObjekte
 {
 	public class Gegner
 	{
-		double MyX { get; set; }
-		double MyY { get; set; }
+		public Point MyPosition { get; set; }
 		Canvas MySpielbrett { get; set; }
-		protected Polygon MyForm { get; set; }
+		public Polygon MyForm { get; set; }
+		double MyHP { get; set; }
 
 		public Gegner(Canvas spielbrett, Point punkt)
 		{
-			MyX = punkt.X;
-			MyY = punkt.Y;
+			MyPosition = punkt;
 			MySpielbrett = spielbrett;
+
+			MyHP = 5;
 
 			MyForm = new Polygon();
 			MyForm.Fill = Brushes.Blue;
 			MyForm.Points.Add(new Point(0, 10));
 			MyForm.Points.Add(new Point(5, -5));
 			MyForm.Points.Add(new Point(-5, -5));
-			Canvas.SetLeft(MyForm, MyX);
-			Canvas.SetTop(MyForm, MyY);
+			Canvas.SetLeft(MyForm, MyPosition.X);
+			Canvas.SetTop(MyForm, MyPosition.Y);
+
+			MySpielbrett.Children.Add(MyForm);
 		}
 
-		public void ErzeugeGegner()
+		public bool IstAmLeben()
 		{
-			MySpielbrett.Children.Add(MyForm);
+			return MyHP > 0;
+		}
+
+		public void Angreifen(double schaden)
+		{
+			MyHP -= schaden;
+		}
+
+		public void Bewegen(double intervall)
+		{
+			Point neuPosition = new Point(MyPosition.X + 0 * intervall, MyPosition.Y + -100 * intervall);
+			MyPosition = neuPosition;
+
+			Canvas.SetLeft(MyForm, MyPosition.X);
+			Canvas.SetTop(MyForm, MyPosition.Y);
 		}
 	}
 }

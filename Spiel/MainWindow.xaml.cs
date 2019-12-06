@@ -19,6 +19,7 @@ namespace Spiel
 	public partial class MainWindow : Window
 	{
 		const int rasterGroesse = 32;
+		const double invervall = 0.02;
 
 		DispatcherTimer takt = new DispatcherTimer();
 		Point zeiger = new Point(-1, -1);
@@ -34,7 +35,7 @@ namespace Spiel
 		public MainWindow()
 		{
 			InitializeComponent();
-			takt.Interval = TimeSpan.FromSeconds(0.02);
+			takt.Interval = TimeSpan.FromSeconds(invervall);
 			takt.Tick += Update;
 			takt.Start();
 		}
@@ -43,32 +44,16 @@ namespace Spiel
 		{
 			if (spielLogik != null)
 			{
-				if (turmVorschau && !turmAbbruch && !turmBauen)
+				if (turmVorschau)
 				{
-					zeiger = spielLogik.RasterUebersetzung(Mouse.GetPosition(this));
+					BauMenu();
+				}
 
-					if (zeiger != zeigerAlt || turmGewechselt)
-					{
-						spielLogik.Zerstoere(zeigerAlt);
-						spielLogik.TurmPlatzieren(zeiger, turmAuswahl);
-						zeigerAlt = zeiger;
-						turmGewechselt = false;
-					}
-				}
-				else if (turmVorschau && turmAbbruch)
-				{
-					spielLogik.Zerstoere(zeigerAlt);
-					turmVorschau = false;
-					turmAbbruch = false;
-					zeigerAlt = new Point(-1, -1);
-				}
-				else if (turmVorschau && turmBauen)
-				{
-					spielLogik.Baue(turmAuswahl);
-					turmVorschau = false;
-					turmBauen = false;
-					zeigerAlt = new Point(-1, -1);
-				}
+				spielLogik.TuermeSchiessen();
+				spielLogik.Animieren();
+				spielLogik.Kollisionen();
+				spielLogik.Aufraeumen();
+				spielLogik.Generieren();
 			}
 			else
 			{
@@ -88,6 +73,35 @@ namespace Spiel
 
 				turmAuswahl = 0;
 				turmVorschau = false;
+			}
+		}
+
+		void BauMenu()
+		{
+			if (turmVorschau && !turmAbbruch && !turmBauen)
+			{
+				zeiger = spielLogik.RasterUebersetzung(Mouse.GetPosition(this));
+
+				if (zeiger != zeigerAlt || turmGewechselt)
+				{
+					spielLogik.TurmVorschau(zeiger, turmAuswahl);
+					zeigerAlt = zeiger;
+					turmGewechselt = false;
+				}
+			}
+			else if (turmVorschau && turmAbbruch)
+			{
+				spielLogik.TurmVorschau(new Point(-1, -1), turmAuswahl);
+				turmVorschau = false;
+				turmAbbruch = false;
+				zeigerAlt = new Point(-1, -1);
+			}
+			else if (turmVorschau && turmBauen)
+			{
+				spielLogik.TurmBauen(zeiger, turmAuswahl);
+				turmVorschau = false;
+				turmBauen = false;
+				zeigerAlt = new Point(-1, -1);
 			}
 		}
 
@@ -113,10 +127,13 @@ namespace Spiel
 			switch (e.ChangedButton)
 			{
 				case MouseButton.Left:
-					turmBauen = true;
+					if (turmVorschau)
+					{
+						turmBauen = true;
+					}
 					break;
 				case MouseButton.Middle:
-					spielLogik.PlatziereGegner(Mouse.GetPosition(this));
+					spielLogik.PlatziereGenerator(Mouse.GetPosition(this));
 					break;
 				case MouseButton.Right:
 					spielLogik.Zerstoere(spielLogik.RasterUebersetzung(Mouse.GetPosition(this)));
@@ -163,7 +180,10 @@ namespace Spiel
 				case Key.D9:
 					break;
 				case Key.Escape:
-					turmAbbruch = true;
+					if (turmVorschau)
+					{
+						turmAbbruch = true;
+					}
 					break;
 				default:
 					break;
