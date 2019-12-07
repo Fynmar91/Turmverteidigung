@@ -12,6 +12,8 @@ namespace SpielObjekte
 {
 	public class Projektil
 	{
+		const int kollisionsgroesse = 16;
+
 		Point MyPosition { get; set; }
 		Canvas MySpielbrett { get; set; }
 		public Polygon MyForm { get; set; }
@@ -19,17 +21,19 @@ namespace SpielObjekte
 		public Gegner MyZiel { get; set; }
 		double MySchaden { get; set; }
 		int MyGeschwindigkeit { get; set; }
+		Brush MyFarbe { get; set; }
 
-		public Projektil(Canvas spielbrett, Point punkt, Gegner gegner, double schaden, int geschwindigkeit)
+		public Projektil(Canvas spielbrett, Point punkt, Gegner gegner, double schaden, int geschwindigkeit, Brush farbe)
 		{
 			MyPosition = punkt;
 			MySpielbrett = spielbrett;
 			MyZiel = gegner;
 			MySchaden = schaden;
 			MyGeschwindigkeit = geschwindigkeit;
+			MyFarbe = farbe;
 
 			MyForm = new Polygon();
-			MyForm.Fill = Brushes.Black;
+			MyForm.Fill = MyFarbe;
 			MyForm.Points.Add(new Point(0, 2));
 			MyForm.Points.Add(new Point(2, 0));
 			MyForm.Points.Add(new Point(0, -2));
@@ -39,10 +43,10 @@ namespace SpielObjekte
 
 			MyKollisionsbox = new Ellipse();
 			MyKollisionsbox.Fill = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
-			MyKollisionsbox.Height = 10;
-			MyKollisionsbox.Width = 10;
-			Canvas.SetLeft(MyKollisionsbox, punkt.X - 10 / 2);
-			Canvas.SetTop(MyKollisionsbox, punkt.Y - 10 / 2);
+			MyKollisionsbox.Height = kollisionsgroesse;
+			MyKollisionsbox.Width = kollisionsgroesse;
+			Canvas.SetLeft(MyKollisionsbox, punkt.X - kollisionsgroesse / 2);
+			Canvas.SetTop(MyKollisionsbox, punkt.Y - kollisionsgroesse / 2);
 
 			MySpielbrett.Children.Add(MyForm);
 			MySpielbrett.Children.Add(MyKollisionsbox);
@@ -60,8 +64,8 @@ namespace SpielObjekte
 
 			Canvas.SetLeft(MyForm, MyPosition.X);
 			Canvas.SetTop(MyForm, MyPosition.Y);
-			Canvas.SetLeft(MyKollisionsbox, MyPosition.X - 10 / 2);
-			Canvas.SetTop(MyKollisionsbox, MyPosition.Y - 10 / 2);
+			Canvas.SetLeft(MyKollisionsbox, MyPosition.X - kollisionsgroesse / 2);
+			Canvas.SetTop(MyKollisionsbox, MyPosition.Y - kollisionsgroesse / 2);
 		}
 
 		public bool Getroffen(Gegner gegner)

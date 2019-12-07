@@ -39,18 +39,20 @@ namespace SpielObjekte
 		Canvas MySpielbrett { get; set; }
 		Point MyBauplatz { get; set; }
 		Point MyBauKoordinate { get; set; }
-		Gegner MyZiel { get; set; }
+		List<Gegner> MyZiele { get; set; }
 		double MyAbklingzeit { get; set; }
 		protected double MyKadenz { get; set; }
 		protected double MySchaden { get; set; }
-		protected int MyGeschwindigkeit { get; set; }
+		protected int MyProjektilGeschwindigkeit { get; set; }
+		protected int MyFeuerstoss { get; set; }
+		protected Brush MyGeschossFarbe { get; set; }
 
 
 		public Turm(Canvas spielbrett, int rasterGroesse, Point bauplatz, int reichweite)
 		{
 			MySpielbrett = spielbrett;
 			MyBauplatz = bauplatz;
-			MyBauKoordinate = new Point(bauplatz.X * rasterGroesse + rasterGroesse / 2, bauplatz.Y * rasterGroesse  + rasterGroesse / 2);
+			MyBauKoordinate = new Point(bauplatz.X * rasterGroesse + rasterGroesse / 2, bauplatz.Y * rasterGroesse + rasterGroesse / 2);
 
 			MyZielbereich = new Ellipse();
 			MyZielbereich.Fill = new SolidColorBrush(Color.FromArgb(40, 0, 255, 255));
@@ -79,30 +81,40 @@ namespace SpielObjekte
 			MySpielbrett.Children.Remove(MyZielbereich);
 		}
 
-		public bool ZielErfassen(Gegner gegner)
+		void ZielErfassen(List<Gegner> MyGegner)
 		{
-			if (MyZielbereich.RenderedGeometry.FillContains(new Point(gegner.MyPosition.X - (MyBauKoordinate.X - MyZielbereich.ActualWidth / 2), 
-																		gegner.MyPosition.Y - (MyBauKoordinate.Y - MyZielbereich.ActualHeight / 2))) && gegner.IstAmLeben())
-			{
-				MyZiel = gegner;
-				return true;
-			}
+			MyZiele = new List<Gegner>();
 
-			return false;
+			foreach (var gegner in MyGegner)
+			{
+				if (MyZielbereich.RenderedGeometry.FillContains(new Point(gegner.MyPosition.X - (MyBauKoordinate.X - MyZielbereich.ActualWidth / 2),
+																		gegner.MyPosition.Y - (MyBauKoordinate.Y - MyZielbereich.ActualHeight / 2))) && gegner.IstAmLeben())
+				{
+					MyZiele.Add(gegner);
+				}
+			}
 		}
 
-		public Projektil Schiessen(Gegner gegner)
+		public void Schiessen(List<Gegner> MyGegner, List<Projektil> MyProjektile, double intervall)
 		{
-			if (MyZiel != null && MyAbklingzeit <= 0)
+			Nachladen(intervall);
+			ZielErfassen(MyGegner);
+
+
+			if (MyZiele != null && MyAbklingzeit <= 0)
 			{
 				MyAbklingzeit = MyKadenz;
-				return new Projektil(MySpielbrett, MyBauKoordinate, gegner, MySchaden, MyGeschwindigkeit);
-			}
 
-			return null;
+				for (int i = 0; i < MyZiele.Count(); i++)
+				{
+					MyProjektile.Add(new Projektil(MySpielbrett, MyBauKoordinate, MyZiele[i], MySchaden, MyProjektilGeschwindigkeit, MyGeschossFarbe));
+
+					if (i >= MyFeuerstoss - 1) { break; }
+				}
+			}
 		}
 
-		public void Nachladen(double intervall)
+		void Nachladen(double intervall)
 		{
 			MyAbklingzeit -= intervall;
 		}
@@ -114,8 +126,10 @@ namespace SpielObjekte
 						: base(spielbrett, rasterGroesse, bauplatz, reichweite)
 		{
 			MyKadenz = 0.1;
-			MySchaden = 1;
-			MyGeschwindigkeit = 400;
+			MySchaden = 4;
+			MyProjektilGeschwindigkeit = 600;
+			MyFeuerstoss = 1;
+			MyGeschossFarbe = Brushes.Black;
 
 			MyBauform = new Polygon();
 			MyBauform.Fill = Brushes.SlateGray;
@@ -134,11 +148,35 @@ namespace SpielObjekte
 							: base(spielbrett, rasterGroesse, bauplatz, reichweite)
 		{
 			MyKadenz = 0.5;
-			MySchaden = 6;
-			MyGeschwindigkeit = 500;
+			MySchaden = 20;
+			MyProjektilGeschwindigkeit = 600;
+			MyFeuerstoss = 1;
+			MyGeschossFarbe = Brushes.Black;
 
 			MyBauform = new Polygon();
 			MyBauform.Fill = Brushes.DarkSlateGray;
+			MyBauform.Points.Add(new Point(2, 2));
+			MyBauform.Points.Add(new Point(rasterGroesse - 2, 2));
+			MyBauform.Points.Add(new Point(rasterGroesse - 2, rasterGroesse - 2));
+			MyBauform.Points.Add(new Point(2, rasterGroesse - 2));
+			Canvas.SetLeft(MyBauform, bauplatz.X * rasterGroesse);
+			Canvas.SetTop(MyBauform, bauplatz.Y * rasterGroesse);
+		}
+	}
+
+	public class FlammenTurm : Turm
+	{
+		public FlammenTurm(Canvas spielbrett, int rasterGroesse, Point bauplatz, int reichweite)
+							: base(spielbrett, rasterGroesse, bauplatz, reichweite)
+		{
+			MyKadenz = 0.1;
+			MySchaden = 1;
+			MyProjektilGeschwindigkeit = 400;
+			MyFeuerstoss = 5;
+			MyGeschossFarbe = Brushes.Red;
+
+			MyBauform = new Polygon();
+			MyBauform.Fill = Brushes.DarkRed;
 			MyBauform.Points.Add(new Point(2, 2));
 			MyBauform.Points.Add(new Point(rasterGroesse - 2, 2));
 			MyBauform.Points.Add(new Point(rasterGroesse - 2, rasterGroesse - 2));

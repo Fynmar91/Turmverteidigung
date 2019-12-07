@@ -48,6 +48,7 @@ namespace Spiel
 					BauMenu();
 				}
 
+				spielLogik.AnzeigenErneuern();
 				spielLogik.TuermeSchiessen(takt.Interval);
 				spielLogik.Animieren(takt.Interval);
 				spielLogik.Kollisionen();
@@ -56,9 +57,9 @@ namespace Spiel
 			}
 			else
 			{
-				TextBlock[] Anzeigen = new TextBlock[1];
-
+				TextBlock[] Anzeigen = new TextBlock[2];
 				Anzeigen[0] = geld_anzeige;
+				Anzeigen[1] = zeit_anzeige;
 
 				spielLogik = new Spiellogik(spielbrett, Anzeigen);
 				KarteBauen();
@@ -165,9 +166,9 @@ namespace Spiel
 				}
 			}
 
-			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 1, 5, 60, 50);
-			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2 + 3, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 0.5, 2, 20, 100);
-			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2 - 3, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 0.5, 2, 20, 100);
+			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2, 2 * rasterGroesse + rasterGroesse / 2), new Point(0, 1), 4, 5, 100, 50);
+			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2 + 5, 2 * rasterGroesse + rasterGroesse / 2 - 15), new Point(0, 1), 2, 2, 40, 50);
+			spielLogik.PlatziereGenerator(new Point(5 * rasterGroesse + rasterGroesse / 2 - 5, 2 * rasterGroesse + rasterGroesse / 2 - 15), new Point(0, 1), 2, 2, 40, 50);
 			spielLogik.PlatzierePunkt(new Point(5 * rasterGroesse + rasterGroesse / 2, 10 * rasterGroesse + rasterGroesse), new Point(1, 0));
 			spielLogik.PlatzierePunkt(new Point(8 * rasterGroesse + rasterGroesse, 10 * rasterGroesse + rasterGroesse / 2), new Point(0, -1));
 			spielLogik.PlatzierePunkt(new Point(8 * rasterGroesse + rasterGroesse / 2, 4 * rasterGroesse + rasterGroesse), new Point(1, 0));
@@ -206,6 +207,8 @@ namespace Spiel
 
 		private void TurmSniper_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 2; turmVorschau = true; turmGewechselt = true; }
 
+		private void TurmFlammen_ausw_Click(object sender, RoutedEventArgs e) { turmAuswahl = 3; turmVorschau = true; turmGewechselt = true; }
+
 		private void Window_KeyDown(object sender, KeyEventArgs e)
 		{
 			switch (e.Key)
@@ -221,6 +224,9 @@ namespace Spiel
 					turmGewechselt = true;
 					break;
 				case Key.D3:
+					turmAuswahl = 3;
+					turmVorschau = true;
+					turmGewechselt = true;
 					break;
 				case Key.D4:
 					break;

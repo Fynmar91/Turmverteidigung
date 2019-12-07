@@ -14,9 +14,16 @@ namespace Spiel
 	class Spiellogik
 	{
 		const int rasterGroesse = 32;
+
 		const int turmPreisMG = 100;
 		const int turmPreisSniper = 200;
+		const int turmPreisFlammen = 200;
 
+		const int turmReichweiteMG = 4;
+		const int turmReichweiteSniper = 6;
+		const int turmReichweiteFlammen = 3;
+
+		double MyLaufzeit { get; set; }
 		int MyGeld { get; set; }
 
 		Canvas MySpielbrett { get; set; }
@@ -30,7 +37,7 @@ namespace Spiel
 
 		public Spiellogik(Canvas spielbrett, TextBlock[] Anzeigen)
 		{
-			MyGeld = 5000;
+			MyGeld = 200;
 
 			MySpielbrett = spielbrett;
 			MyTuerme = new Gebaeude[(int)(MySpielbrett.ActualWidth / rasterGroesse), (int)(MySpielbrett.ActualHeight / rasterGroesse)];
@@ -63,14 +70,21 @@ namespace Spiel
 						case 1:
 							if (MyGeld >= turmPreisMG)
 							{
-								TempTurm = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 4);
+								TempTurm = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteMG);
 								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
 						case 2:
 							if (MyGeld >= turmPreisSniper)
 							{
-								TempTurm = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 6);
+								TempTurm = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteSniper);
+								(TempTurm as Turm).ZeigeTurm();
+							}
+							break;
+						case 3:
+							if (MyGeld >= turmPreisFlammen)
+							{
+								TempTurm = new FlammenTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteFlammen);
 								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
@@ -106,19 +120,25 @@ namespace Spiel
 						case 1:
 							if (MyGeld >= turmPreisMG)
 							{
-								MyTuerme[(int)punkt.X, (int)punkt.Y] = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 4);
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteMG);
 								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisMG;
-								AnzeigenErneuern();
 							}
 							break;
 						case 2:
 							if (MyGeld >= turmPreisSniper)
 							{
-								MyTuerme[(int)punkt.X, (int)punkt.Y] = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * 6);
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteSniper);
 								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisSniper;
-								AnzeigenErneuern();
+							}
+							break;
+						case 3:
+							if (MyGeld >= turmPreisFlammen)
+							{
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = new FlammenTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteFlammen);
+								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
+								MyGeld -= turmPreisSniper;
 							}
 							break;
 						default:
@@ -133,17 +153,12 @@ namespace Spiel
 			if (punkt.X >= 0 && punkt.X < MySpielbrett.ActualWidth / rasterGroesse &&
 				punkt.Y >= 0 && punkt.Y < MySpielbrett.ActualHeight / rasterGroesse)
 			{
-				if (MyTuerme[(int)punkt.X, (int)punkt.Y] != null)
+				if (MyTuerme[(int)punkt.X, (int)punkt.Y] != null && MyTuerme[(int)punkt.X, (int)punkt.Y] is Turm)
 				{
 					(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).ZerstoereTurm();
 					MyTuerme[(int)punkt.X, (int)punkt.Y] = null;
 				}
 			}
-		}
-
-		void AnzeigenErneuern()
-		{
-			MyAnzeigen[0].Text = MyGeld.ToString();
 		}
 
 		public void PlatziereGenerator(Point punkt, Point richtung, double generationsRate, int groesse, int leben, int geschwindigkeit)
@@ -158,30 +173,22 @@ namespace Spiel
 
 		public void TuermeSchiessen(TimeSpan intervall)
 		{
-			foreach (var turm in MyTuerme)
+			foreach (var turm in MyTuerme.OfType<Turm>())
 			{
-				if (turm != null && turm is Turm)
-				{
-					(turm as Turm).Nachladen(intervall.TotalSeconds);
-
-					foreach (var gegner in MyGegner)
-					{
-						if ((turm as Turm).ZielErfassen(gegner))
-						{
-							Projektil projektil = (turm as Turm).Schiessen(gegner);
-
-							if (projektil != null)
-							{
-								MyProjektile.Add(projektil);
-							}
-
-							break;
-						}
-					}
-				}
+				(turm as Turm).Schiessen(MyGegner, MyProjektile, intervall.TotalSeconds);
 			}
 		}
-
+		/// <summary>
+		/// //////////////////////////////////////////////////
+		/// </summary>
+		public void AnzeigenErneuern()
+		{
+			MyAnzeigen[0].Text = MyGeld.ToString();
+			MyAnzeigen[1].Text = MyLaufzeit.ToString("#.0");
+		}
+		/// <summary>
+		/// //////////////////////////////////////////////////
+		/// </summary>
 		public void Animieren(TimeSpan intervall)
 		{
 			foreach (var item in MyGegner)
@@ -194,7 +201,9 @@ namespace Spiel
 				item.Bewegen(intervall.TotalSeconds);
 			}
 		}
-
+		/// <summary>
+		/// //////////////////////////////////////////////////
+		/// </summary>
 		public void Kollisionen()
 		{
 			List<Projektil> ProjektilAbfall = new List<Projektil>();
@@ -236,7 +245,9 @@ namespace Spiel
 				MySpielbrett.Children.Remove(item.MyForm);
 			}
 		}
-
+		/// <summary>
+		/// //////////////////////////////////////////////////
+		/// </summary>
 		public void Aufraeumen()
 		{
 			List<Gegner> GegnerAbfall = new List<Gegner>();
@@ -246,7 +257,7 @@ namespace Spiel
 				if (!item.IstAmLeben())
 				{
 					GegnerAbfall.Add(item);
-					MyGeld += 100;
+					MyGeld += 10;
 				}
 			}
 
@@ -273,9 +284,23 @@ namespace Spiel
 				MySpielbrett.Children.Remove(item.MyKollisionsbox);
 			}
 		}
-
+		/// <summary>
+		/// //////////////////////////////////////////////////
+		/// </summary>
 		public void Generieren(TimeSpan intervall)
 		{
+			MyLaufzeit += intervall.TotalSeconds;
+
+			if (MyLaufzeit > 10)
+			{
+				foreach (var item in MyGegnerGeneratoren)
+				{
+					item.Schneller();
+				}
+
+				MyLaufzeit = 0;
+			}
+
 			foreach (var item in MyGegnerGeneratoren)
 			{
 				item.Generiere(intervall.TotalSeconds);
@@ -288,7 +313,7 @@ namespace Spiel
 		public Point MyPosition { get; set; }
 		Canvas MySpielbrett { get; set; }
 		List<Gegner> MyGegner { get; set; }
-		double MyGenerationsAbklingzeit { get; set; }
+		double MyAbklingzeit { get; set; }
 		double MyGenerationsRate { get; set; }
 		Point MyRichtung { get; set; }
 		int MyGroesse { get; set; }
@@ -309,14 +334,19 @@ namespace Spiel
 
 		public void Generiere(double intervall)
 		{
-			MyGenerationsAbklingzeit -= intervall;
+			MyAbklingzeit -= intervall;
 
-			if (MyGenerationsAbklingzeit <= 0)
+			if (MyAbklingzeit <= 0)
 			{
-				MyGenerationsAbklingzeit = MyGenerationsRate;
+				MyAbklingzeit = MyGenerationsRate;
 
 				MyGegner.Add(new Gegner(MySpielbrett, MyPosition, MyGroesse, MyRichtung, MyLeben, MyGeschwindigkeit));
 			}
+		}
+
+		public void Schneller()
+		{
+			MyGenerationsRate = MyGenerationsRate * 0.7;
 		}
 	}
 
