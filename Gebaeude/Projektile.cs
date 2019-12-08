@@ -32,6 +32,11 @@ namespace SpielObjekte
 			MyGeschwindigkeit = geschwindigkeit;
 			MyFarbe = farbe;
 
+			ProjektilForm();
+		}
+
+		void ProjektilForm()
+		{
 			MyForm = new Polygon();
 			MyForm.Fill = MyFarbe;
 			MyForm.Points.Add(new Point(0, 2));
@@ -45,8 +50,8 @@ namespace SpielObjekte
 			MyKollisionsbox.Fill = new SolidColorBrush(Color.FromArgb(0, 255, 255, 255));
 			MyKollisionsbox.Height = kollisionsgroesse;
 			MyKollisionsbox.Width = kollisionsgroesse;
-			Canvas.SetLeft(MyKollisionsbox, punkt.X - kollisionsgroesse / 2);
-			Canvas.SetTop(MyKollisionsbox, punkt.Y - kollisionsgroesse / 2);
+			Canvas.SetLeft(MyKollisionsbox, MyPosition.X - kollisionsgroesse / 2);
+			Canvas.SetTop(MyKollisionsbox, MyPosition.Y - kollisionsgroesse / 2);
 
 			MySpielbrett.Children.Add(MyForm);
 			MySpielbrett.Children.Add(MyKollisionsbox);

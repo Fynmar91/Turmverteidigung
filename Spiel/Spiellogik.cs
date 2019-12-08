@@ -70,21 +70,21 @@ namespace Spiel
 						case 1:
 							if (MyGeld >= turmPreisMG)
 							{
-								TempTurm = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteMG);
+								TempTurm = new MGTurm(MySpielbrett, punkt, rasterGroesse + rasterGroesse * turmReichweiteMG);
 								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
 						case 2:
 							if (MyGeld >= turmPreisSniper)
 							{
-								TempTurm = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteSniper);
+								TempTurm = new SniperTurm(MySpielbrett, punkt, rasterGroesse + rasterGroesse * turmReichweiteSniper);
 								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
 						case 3:
 							if (MyGeld >= turmPreisFlammen)
 							{
-								TempTurm = new FlammenTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteFlammen);
+								TempTurm = new FlammenTurm(MySpielbrett, punkt, rasterGroesse + rasterGroesse * turmReichweiteFlammen);
 								(TempTurm as Turm).ZeigeTurm();
 							}
 							break;
@@ -120,7 +120,7 @@ namespace Spiel
 						case 1:
 							if (MyGeld >= turmPreisMG)
 							{
-								MyTuerme[(int)punkt.X, (int)punkt.Y] = new MGTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteMG);
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = new MGTurm(MySpielbrett, punkt, rasterGroesse + rasterGroesse * turmReichweiteMG);
 								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisMG;
 							}
@@ -128,7 +128,7 @@ namespace Spiel
 						case 2:
 							if (MyGeld >= turmPreisSniper)
 							{
-								MyTuerme[(int)punkt.X, (int)punkt.Y] = new SniperTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteSniper);
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = new SniperTurm(MySpielbrett, punkt, rasterGroesse + rasterGroesse * turmReichweiteSniper);
 								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisSniper;
 							}
@@ -136,7 +136,7 @@ namespace Spiel
 						case 3:
 							if (MyGeld >= turmPreisFlammen)
 							{
-								MyTuerme[(int)punkt.X, (int)punkt.Y] = new FlammenTurm(MySpielbrett, rasterGroesse, punkt, rasterGroesse + rasterGroesse * turmReichweiteFlammen);
+								MyTuerme[(int)punkt.X, (int)punkt.Y] = new FlammenTurm(MySpielbrett, punkt, rasterGroesse + rasterGroesse * turmReichweiteFlammen);
 								(MyTuerme[(int)punkt.X, (int)punkt.Y] as Turm).BaueTurm();
 								MyGeld -= turmPreisSniper;
 							}
